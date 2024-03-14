@@ -1,7 +1,61 @@
 import React from 'react';
-import { useTable, useExpanded } from '@tanstack/react-table';
-
+// import { useReactTable } from '@tanstack/react-table';
+import { useTable , useExpanded } from 'react-table'
 // Assuming `data` is your transformed data array
+import 'bootstrap/dist/css/bootstrap.min.css';
+import ExpandableTableComponent from "./components/Expandable";
+
+const ExpandableTable = ({ columns, data }) => {
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    visibleColumns,
+  } = useTable({ columns, data } , useExpanded);
+
+  return (
+    <table {...getTableProps()}>
+      <thead>
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column) => (
+              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row) => {
+          prepareRow(row);
+          return (
+            <React.Fragment key={row.id}>
+              <tr {...row.getRowProps()}>
+                {row.cells.map((cell) => (
+                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                ))}
+              </tr>
+              {row.isExpanded && (
+                <tr>
+                  <td colSpan={visibleColumns.length}>
+                    {/* Render your expanded content here */}
+                    <div style={{ paddingLeft: '20px' }}>
+                      Expanded Details: {row.original.details}
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
+function App() {
+
 const data = React.useMemo(
   () => [
     {
@@ -84,56 +138,13 @@ const columns = React.useMemo(
   ],
   []
 );
-
-const ExpandableTable = ({ columns, data }) => {
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    visibleColumns,
-  } = useTable({ columns, data }, useExpanded);
-
   return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row);
-          return (
-            <React.Fragment key={row.id}>
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                ))}
-              </tr>
-              {row.isExpanded && (
-                <tr>
-                  <td colSpan={visibleColumns.length}>
-                    {/* Render your expanded content here */}
-                    <div style={{ paddingLeft: '20px' }}>
-                      Expanded Details: {row.original.details}
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </tbody>
-    </table>
+    <>
+     {/* <ExpandableTable columns={columns} data={data} /> */}
+     <ExpandableTableComponent />
+    </>
   );
-};
-
-const App = () => <ExpandableTable columns={columns} data={data} />;
+}
 
 export default App;
+
